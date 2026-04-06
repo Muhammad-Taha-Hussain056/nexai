@@ -1,0 +1,281 @@
+{
+  "collection": "foundation-model-catalog",
+  "version": "2026-04-06",
+  "changes": [
+    {
+      "changeId": "chg-2026-04-06-01",
+      "type": "dataset-expanded",
+      "description": "Added reviews, agent creation info, prompt guide, pricing plans, and usage guide for all models.",
+      "effectiveAt": "2026-04-06T00:00:00Z"
+    }
+  ],
+  "promptGuide": [
+    {
+      "title": "Be explicit about format",
+      "template": "Summarize the following text in exactly 3 bullet points. Each bullet should be one sentence, under 20 words. Text: {your_text_here}"
+    },
+    {
+      "title": "Assign a role",
+      "template": "You are a senior software engineer specializing in Python. Review the following code for bugs, performance issues, and style violations. Be concise and actionable. Code: {your_code_here}"
+    },
+    {
+      "title": "Step-by-step for complex tasks",
+      "template": "Solve this step by step. Problem: {your_problem_here}. Think through assumptions -> approach -> calculation -> answer."
+    },
+    {
+      "title": "Few-shot examples",
+      "template": "Classify sentiment with examples, then classify: {new_review_here}."
+    }
+  ],
+  "models": [
+    {
+      "id": "openai-gpt-4o",
+      "provider": "openai",
+      "model": "GPT-4o",
+      "description": "Flagship multimodal model combining text, vision, and audio with strong reasoning.",
+      "inputOutput": {
+        "input": ["text", "images", "audio", "pdfs"],
+        "output": ["text", "code", "structured-data"],
+        "contextTokens": 128000,
+        "maxOutputTokens": 4096,
+        "avgLatencySeconds": 1.2
+      },
+      "benchmarks": { "mmlu": 87.2, "humanEval": 90.2, "math": 76.6 },
+      "rating": 4.7,
+      "reviewCount": 2847,
+      "reviewBreakdown": { "5": "72%", "4": "20%", "3": "6%", "1-2": "2%" },
+      "reviews": [
+        {
+          "author": "Sarah K.",
+          "role": "ML Engineer at Stripe",
+          "stars": 5,
+          "date": "2025-03",
+          "text": "Great vision accuracy for financial documents and low post-processing effort."
+        },
+        {
+          "author": "Tariq M.",
+          "role": "Founder, EdTech Startup",
+          "stars": 4,
+          "date": "2025-02",
+          "text": "Strong reasoning and creativity; cost can increase quickly at scale."
+        },
+        {
+          "author": "Priya N.",
+          "role": "Senior Developer at Shopify",
+          "stars": 5,
+          "date": "2025-02",
+          "text": "Excellent code review quality and reliable JSON/function-calling output."
+        }
+      ],
+      "agents": {
+        "supported": true,
+        "creationSteps": [
+          "Define purpose",
+          "Write system prompt",
+          "Connect tools and APIs",
+          "Set memory",
+          "Test and iterate",
+          "Deploy and monitor"
+        ]
+      },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$5", "outputPer1M": "$15", "context": "128K", "rateLimit": "500 RPM" },
+        "pro": { "monthly": "$49", "inputPer1M": "$3", "outputPer1M": "$9", "context": "128K", "rateLimit": "3000 RPM" },
+        "enterprise": { "plan": "custom", "notes": ["volume discounts", "dedicated capacity", "SLA and compliance"] },
+        "freeTier": "100K tokens/month"
+      },
+      "howToUse": [
+        "Get API key",
+        "Choose REST API, SDK, or no-code integration",
+        "Send model input and parse structured output",
+        "Tune temperature and max tokens",
+        "Test in playground before production"
+      ],
+      "tags": ["flagship", "agents", "multimodal", "reasoning"]
+    },
+    {
+      "id": "anthropic-claude-3-7-sonnet",
+      "provider": "anthropic",
+      "model": "Claude 3.7 Sonnet",
+      "description": "Balanced long-context model for analysis, writing, and coding workflows.",
+      "inputOutput": { "input": ["text", "images", "pdfs"], "output": ["text", "code"], "contextTokens": 200000, "maxOutputTokens": 8192, "avgLatencySeconds": 1.4 },
+      "benchmarks": { "mmlu": 85.6, "humanEval": 88.4, "math": 72.1 },
+      "rating": 4.8,
+      "reviewCount": 1960,
+      "reviewBreakdown": { "5": "69%", "4": "23%", "3": "6%", "1-2": "2%" },
+      "reviews": [
+        { "author": "Nadia H.", "role": "Product Lead", "stars": 5, "date": "2025-02", "text": "Very strong for long reports and policy analysis." },
+        { "author": "Luke B.", "role": "DevOps Engineer", "stars": 4, "date": "2025-01", "text": "Helpful responses with consistent structure." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$4.5", "outputPer1M": "$14", "context": "200K", "rateLimit": "450 RPM" },
+        "pro": { "monthly": "$45", "inputPer1M": "$2.8", "outputPer1M": "$8.8", "context": "200K", "rateLimit": "2500 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Get API key", "Configure system prompt", "Add retrieval/tool-calls", "Evaluate on edge cases"],
+      "tags": ["agents", "reasoning", "long-context"]
+    },
+    {
+      "id": "google-gemini-2-5-pro",
+      "provider": "google",
+      "model": "Gemini 2.5 Pro",
+      "description": "High-capability multimodal model for technical and creative workloads.",
+      "inputOutput": { "input": ["text", "images", "audio", "video", "pdfs"], "output": ["text", "code"], "contextTokens": 1000000, "maxOutputTokens": 8192, "avgLatencySeconds": 1.9 },
+      "benchmarks": { "mmlu": 88.1, "humanEval": 86.9, "math": 79.3 },
+      "rating": 4.8,
+      "reviewCount": 2214,
+      "reviewBreakdown": { "5": "70%", "4": "21%", "3": "7%", "1-2": "2%" },
+      "reviews": [
+        { "author": "Ren M.", "role": "UX Researcher", "stars": 5, "date": "2025-03", "text": "Excellent image understanding and UX recommendations." },
+        { "author": "Ibrahim S.", "role": "Data Scientist", "stars": 4, "date": "2025-02", "text": "Great for multimodal prototyping with broad context." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$6", "outputPer1M": "$16", "context": "1M", "rateLimit": "400 RPM" },
+        "pro": { "monthly": "$59", "inputPer1M": "$3.5", "outputPer1M": "$10", "context": "1M", "rateLimit": "2800 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Get API key", "Test multimodal prompts", "Tune response format and temperature"],
+      "tags": ["agents", "multimodal", "reasoning"]
+    },
+    {
+      "id": "meta-llama-3-1-405b",
+      "provider": "meta",
+      "model": "Llama 3.1 405B",
+      "description": "Open-weight large model for custom deployment and enterprise adaptation.",
+      "inputOutput": { "input": ["text"], "output": ["text", "code"], "contextTokens": 128000, "maxOutputTokens": 4096, "avgLatencySeconds": 2.1 },
+      "benchmarks": { "mmlu": 84.7, "humanEval": 81.2, "math": 68.8 },
+      "rating": 4.6,
+      "reviewCount": 1732,
+      "reviewBreakdown": { "5": "65%", "4": "24%", "3": "8%", "1-2": "3%" },
+      "reviews": [
+        { "author": "Marco T.", "role": "Platform Engineer", "stars": 5, "date": "2025-01", "text": "Strong self-hosted option with good customization." },
+        { "author": "Anya P.", "role": "Startup CTO", "stars": 4, "date": "2024-12", "text": "Great control, but infra setup needs effort." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$3.2", "outputPer1M": "$9.8", "context": "128K", "rateLimit": "600 RPM" },
+        "pro": { "monthly": "$39", "inputPer1M": "$2.1", "outputPer1M": "$6.7", "context": "128K", "rateLimit": "2200 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Choose deployment style", "Configure inference server", "Integrate API layer", "Monitor quality and cost"],
+      "tags": ["agents", "open-weights", "self-hosted"]
+    },
+    {
+      "id": "mistral-large",
+      "provider": "mistral",
+      "model": "Mistral Large",
+      "description": "Enterprise-focused reasoning model for automation and assistant use cases.",
+      "inputOutput": { "input": ["text", "images"], "output": ["text", "code", "structured-data"], "contextTokens": 128000, "maxOutputTokens": 8192, "avgLatencySeconds": 1.3 },
+      "benchmarks": { "mmlu": 83.9, "humanEval": 80.1, "math": 66.2 },
+      "rating": 4.5,
+      "reviewCount": 1428,
+      "reviewBreakdown": { "5": "62%", "4": "27%", "3": "8%", "1-2": "3%" },
+      "reviews": [
+        { "author": "Samir A.", "role": "Automation Lead", "stars": 5, "date": "2025-02", "text": "Reliable for workflow automation and summaries." },
+        { "author": "Elena V.", "role": "Support Manager", "stars": 4, "date": "2025-01", "text": "Good tool-calling behavior in production." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$4.9", "outputPer1M": "$13", "context": "128K", "rateLimit": "550 RPM" },
+        "pro": { "monthly": "$42", "inputPer1M": "$2.7", "outputPer1M": "$8.2", "context": "128K", "rateLimit": "2600 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Create API key", "Configure tool calling", "Load evaluation set", "Tune prompts"],
+      "tags": ["agents", "enterprise", "tool-calling"]
+    },
+    {
+      "id": "cohere-command-r-plus",
+      "provider": "cohere",
+      "model": "Command R+",
+      "description": "Retrieval-oriented model for enterprise search and grounded Q&A.",
+      "inputOutput": { "input": ["text"], "output": ["text", "structured-data"], "contextTokens": 128000, "maxOutputTokens": 4096, "avgLatencySeconds": 1.1 },
+      "benchmarks": { "mmlu": 79.8, "humanEval": 70.4, "math": 60.7 },
+      "rating": 4.4,
+      "reviewCount": 1186,
+      "reviewBreakdown": { "5": "59%", "4": "29%", "3": "9%", "1-2": "3%" },
+      "reviews": [
+        { "author": "Helen J.", "role": "Knowledge Manager", "stars": 5, "date": "2025-02", "text": "Very strong RAG grounding and source usage." },
+        { "author": "Omar D.", "role": "Backend Engineer", "stars": 4, "date": "2025-01", "text": "Consistent structured responses in enterprise apps." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$2.9", "outputPer1M": "$8.7", "context": "128K", "rateLimit": "700 RPM" },
+        "pro": { "monthly": "$35", "inputPer1M": "$1.9", "outputPer1M": "$5.6", "context": "128K", "rateLimit": "2400 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Set up retrieval index", "Attach citations format", "Validate factual grounding"],
+      "tags": ["agents", "rag", "enterprise-search"]
+    },
+    {
+      "id": "meta-llama-4-maverick",
+      "provider": "meta",
+      "model": "Llama 4 Maverick",
+      "description": "High-capability 400B MoE open-weight model focused on multilingual reasoning and multimodal tasks.",
+      "inputOutput": { "input": ["text", "images", "video"], "output": ["text", "code", "structured-data"], "contextTokens": 128000, "maxOutputTokens": 4096, "avgLatencySeconds": 2.4 },
+      "benchmarks": { "mmlu": 86.9, "humanEval": 84.3, "math": 74.2 },
+      "rating": 4.8,
+      "reviewCount": 1312,
+      "reviewBreakdown": { "5": "71%", "4": "20%", "3": "7%", "1-2": "2%" },
+      "reviews": [
+        { "author": "Rehan P.", "role": "AI Lead", "stars": 5, "date": "2026-03", "text": "Impressive multilingual quality for an open-weight model." },
+        { "author": "Mina L.", "role": "Research Engineer", "stars": 4, "date": "2026-03", "text": "Strong reasoning output, with heavier compute requirements." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$4.2", "outputPer1M": "$12.5", "context": "128K", "rateLimit": "520 RPM" },
+        "pro": { "monthly": "$44", "inputPer1M": "$2.5", "outputPer1M": "$7.9", "context": "128K", "rateLimit": "2400 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Choose self-hosted or managed endpoint", "Configure multimodal input handling", "Tune prompts for reasoning"],
+      "tags": ["agents", "open-weights", "multimodal", "reasoning"]
+    },
+    {
+      "id": "meta-llama-4-scout",
+      "provider": "meta",
+      "model": "Llama 4 Scout",
+      "description": "Efficient 17B active MoE variant optimized for long-context retrieval and RAG workloads.",
+      "inputOutput": { "input": ["text", "images", "video"], "output": ["text", "structured-data"], "contextTokens": 128000, "maxOutputTokens": 4096, "avgLatencySeconds": 1.5 },
+      "benchmarks": { "mmlu": 82.4, "humanEval": 76.8, "math": 64.5 },
+      "rating": 4.6,
+      "reviewCount": 984,
+      "reviewBreakdown": { "5": "66%", "4": "24%", "3": "8%", "1-2": "2%" },
+      "reviews": [
+        { "author": "Dina S.", "role": "RAG Architect", "stars": 5, "date": "2026-03", "text": "Great cost-quality balance for long-context RAG systems." },
+        { "author": "Hassan Q.", "role": "ML Ops Engineer", "stars": 4, "date": "2026-03", "text": "Reliable and efficient for enterprise retrieval flows." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$2.6", "outputPer1M": "$7.8", "context": "128K", "rateLimit": "760 RPM" },
+        "pro": { "monthly": "$31", "inputPer1M": "$1.6", "outputPer1M": "$4.9", "context": "128K", "rateLimit": "3200 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Index enterprise docs", "Set retrieval citations", "Tune for low-latency assistant responses"],
+      "tags": ["agents", "open-weights", "rag", "efficient"]
+    },
+    {
+      "id": "anthropic-claude-sonnet-4-6",
+      "provider": "anthropic",
+      "model": "Claude Sonnet 4.6",
+      "description": "Advanced Sonnet-series model designed for aligned, high-quality reasoning and coding.",
+      "inputOutput": { "input": ["text", "images", "pdfs"], "output": ["text", "code", "structured-data"], "contextTokens": 200000, "maxOutputTokens": 8192, "avgLatencySeconds": 1.5 },
+      "benchmarks": { "mmlu": 87.0, "humanEval": 89.1, "math": 75.0 },
+      "rating": 4.8,
+      "reviewCount": 1588,
+      "reviewBreakdown": { "5": "70%", "4": "22%", "3": "6%", "1-2": "2%" },
+      "reviews": [
+        { "author": "Alia M.", "role": "Product Engineer", "stars": 5, "date": "2026-02", "text": "Very consistent reasoning quality with strong formatting control." },
+        { "author": "Ken T.", "role": "Data Platform Lead", "stars": 4, "date": "2026-02", "text": "Great for safety-sensitive use cases and policy-heavy workflows." }
+      ],
+      "agents": { "supported": true, "creationSteps": ["Define purpose", "Write system prompt", "Connect tools and APIs", "Set memory", "Test and iterate", "Deploy and monitor"] },
+      "pricing": {
+        "payPerUse": { "inputPer1M": "$5.2", "outputPer1M": "$14.8", "context": "200K", "rateLimit": "480 RPM" },
+        "pro": { "monthly": "$48", "inputPer1M": "$3.1", "outputPer1M": "$9.2", "context": "200K", "rateLimit": "2700 RPM" },
+        "enterprise": { "plan": "custom" }
+      },
+      "howToUse": ["Define strict response policy", "Use role-based prompts", "Run eval suite before deployment"],
+      "tags": ["agents", "alignment", "reasoning", "long-context"]
+    }
+  ]
+}
