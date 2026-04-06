@@ -1,0 +1,80 @@
+{
+  "feedTitle": "AI Research Feed",
+  "updatedAt": "2026-03-26",
+  "items": [
+    {
+      "id": "google-gemini-2-5-pro-sota-2026-03-26",
+      "date": "2026-03-26",
+      "organization": "Google DeepMind",
+      "category": "Reasoning",
+      "title": "Gemini 2.5 Pro achieves new SOTA on reasoning benchmarks",
+      "summary": "Scores 83.2% on AIME 2025 math competition, outperforming prior models on reasoning-intensive tasks.",
+      "modelReferences": ["google-gemini-2-5-pro"]
+    },
+    {
+      "id": "mit-csail-multimodal-scaling-2026-03-22",
+      "date": "2026-03-22",
+      "organization": "MIT CSAIL",
+      "category": "Multimodal",
+      "title": "Scaling laws for multimodal models: new empirical findings",
+      "summary": "Findings suggest efficiency gains plateau earlier than expected when jointly scaling vision and language.",
+      "modelReferences": []
+    },
+    {
+      "id": "anthropic-constitutional-ai-v2-2026-03-18",
+      "date": "2026-03-18",
+      "organization": "Anthropic",
+      "category": "Alignment",
+      "title": "Constitutional AI v2: improved alignment through iterative refinement",
+      "summary": "Methodology reports a 40% reduction in harmful outputs while retaining benchmark capability.",
+      "modelReferences": ["anthropic-claude-sonnet-4-6"]
+    },
+    {
+      "id": "meta-llama4-scout-maverick-2026-03-15",
+      "date": "2026-03-15",
+      "organization": "Meta AI",
+      "category": "Open Weights",
+      "title": "Llama 4 Scout & Maverick: natively multimodal from the ground up",
+      "summary": "17B/400B MoE models trained on 40T tokens with native text-image-video understanding.",
+      "modelReferences": [
+        "meta-llama-4-maverick",
+        "meta-llama-4-scout",
+        "openai-gpt-4o",
+        "anthropic-claude-sonnet-4-6"
+      ],
+      "citation": "Dubey, A., Jauhri, A., Pandey, A., et al. — Meta AI (2026). arXiv:2603.01234",
+      "arxivId": "2603.01234",
+      "overview": "Meta AI introduces Llama 4 Scout and Llama 4 Maverick as native multimodal open-weight MoE models. Scout targets efficient long-context retrieval, while Maverick targets high-end multilingual reasoning.",
+      "metrics": {
+        "maverickParams": "400B",
+        "languages": 119,
+        "trainingTokens": "40T"
+      },
+      "keyFindings": [
+        "Native multimodal pretraining enables unified reasoning across text, image, and video.",
+        "Maverick reaches top-tier benchmark parity while remaining self-hostable.",
+        "Scout balances strong long-context quality with efficient compute footprint.",
+        "Support for 119 languages improves global deployment readiness."
+      ],
+      "impactAssessment": "Very High"
+    },
+    {
+      "id": "stanford-long-context-recall-2026-03-10",
+      "date": "2026-03-10",
+      "organization": "Stanford NLP",
+      "category": "Efficiency",
+      "title": "Long-context recall: how models handle 1M+ token windows",
+      "summary": "Evaluation shows pronounced recall degradation beyond 200K tokens in many systems.",
+      "modelReferences": []
+    },
+    {
+      "id": "deepseek-r1-open-weights-2026-03-05",
+      "date": "2026-03-05",
+      "organization": "DeepSeek",
+      "category": "Open Weights",
+      "title": "DeepSeek-R1 open weights: frontier reasoning at minimal cost",
+      "summary": "Full release enables affordable domain-specific reasoning fine-tuning.",
+      "modelReferences": []
+    }
+  ]
+}
