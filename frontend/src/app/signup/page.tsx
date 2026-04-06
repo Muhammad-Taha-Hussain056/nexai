@@ -19,7 +19,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import GoogleIcon from '@mui/icons-material/Google';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
-import { API_BASE_URL } from '@/lib/api';
+import { authService } from '@/services/authService';
 
 const MicrosoftIcon = () => (
   <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
@@ -62,13 +62,11 @@ function SignupForm() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+      await authService.signup({
+        fullName: name.trim(),
+        email: email.trim(),
+        password,
       });
-      const json = (await res.json()) as { error?: { message?: string }; data?: unknown };
-      if (!res.ok) throw new Error(json.error?.message ?? 'Signup failed');
 
       router.push(`/login?email=${encodeURIComponent(email.trim())}`);
     } catch (err) {

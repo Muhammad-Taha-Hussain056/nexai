@@ -11,6 +11,7 @@ import {
   Divider,
   Checkbox,
   IconButton,
+  Chip,
 } from '@mui/material';
 import Navbar from '../../components/layout/Navbar';
 import AddIcon from '@mui/icons-material/Add';
@@ -22,72 +23,93 @@ import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import VideoCallOutlinedIcon from '@mui/icons-material/VideoCallOutlined';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import WindowIcon from '@mui/icons-material/Window';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
+const useCaseTabs = [
+  { label: 'Build a business', icon: '🏢' },
+  { label: 'Help me learn', icon: '🎓' },
+  { label: 'Monitor the situation', icon: '📡' },
+  { label: 'Research', icon: '🔍' },
+  { label: 'Create content', icon: '📝' },
+  { label: 'Analyze & research', icon: '📊' }
+];
+
 const templates = [
   {
+    categories: ['Research', 'Analyze & research'],
     emoji: '🔍',
     title: 'Research Agent',
     desc: 'Automates web research, summarises findings, and generates structured reports.',
     tags: ['GPT-5.4', 'Web search'],
   },
   {
+    categories: ['Build a business'],
     emoji: '💼',
     title: 'Support Agent',
     desc: 'Handles tickets, FAQs, and escalates complex issues.',
     tags: ['GPT-5.4', 'Ticketing'],
   },
   {
+    categories: ['Build a business', 'Analyze & research'],
     emoji: '💻',
     title: 'Code Review Agent',
     desc: 'Reviews PRs, flags bugs, and suggests improvements.',
     tags: ['Claude Opus 4.6', 'GitHub'],
   },
   {
+    categories: ['Research', 'Analyze & research'],
     emoji: '📊',
     title: 'Data Analysis Agent',
     desc: 'Processes spreadsheets and generates visual insights.',
     tags: ['Gemini', 'Sheets'],
   },
   {
+    categories: ['Create content'],
     emoji: '📝',
     title: 'Content Writer Agent',
     desc: 'Creates blog posts and marketing copy with brand voice.',
     tags: ['Claude Opus 4.6', 'Marketing'],
   },
+  {
+    categories: ['Help me learn'],
+    emoji: '🎓',
+    title: 'Tutor Agent',
+    desc: 'Explains complex topics and creates study plans.',
+    tags: ['GPT-5.4', 'Education'],
+  },
+  {
+    categories: ['Monitor the situation'],
+    emoji: '📡',
+    title: 'Brand Monitor',
+    desc: 'Tracks social mentions and news alerts in real-time.',
+    tags: ['Claude 3.5', 'Social'],
+  }
+];
+
+const suggestions = [
+  { category: 'Build a business', icon: '🚀', text: 'Build a space exploration timeline app', color: '#FCE7F3' },
+  { category: 'Build a business', icon: '📊', text: 'Create a real-time stock market tracker', color: '#E0E7FF' },
+  { category: 'Create content', icon: '🤖', text: 'Prototype an AI chatbot demo application', color: '#F3E8FF' },
+  { category: 'Monitor the situation', icon: '📋', text: 'Create a project management Kanban board', color: '#FFEDD5' },
 ];
 
 const checklistItems = [
   'Dashboard Layout Adjustments',
-  'Design agent system pr...',
-  'Configure tool integrati...',
-];
-
-const useCaseTabs = [
-  'Build a business',
-  'Help me learn',
-  'Monitor the situation',
-  'Research',
-  'Create content',
-  'Analyze & research'
-];
-
-const suggestions = [
-  { icon: '🚀', text: 'Build a space exploration timeline app', color: '#FCE7F3' },
-  { icon: '📊', text: 'Create a real-time stock market tracker', color: '#E0E7FF' },
-  { icon: '🤖', text: 'Prototype an AI chatbot demo application', color: '#F3E8FF' },
-  { icon: '📋', text: 'Create a project management Kanban board', color: '#FFEDD5' },
+  'Design agent system prompts',
+  'Configure tool integrations',
 ];
 
 export default function AgentsPage() {
+  const [activeTab, setActiveTab] = useState('Build a business');
   const [input, setInput] = useState('');
 
+  const filteredTemplates = templates.filter(t => t.categories.includes(activeTab) || activeTab === 'Analyze & research');
+  const filteredSuggestions = suggestions.filter(s => s.category === activeTab);
+
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#FFFFFF', overflow: 'hidden' }}>
-      {/* Top Navigation */}
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#FAFAFA', overflow: 'hidden', pt: '72px' }}>
       <Navbar />
 
       <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
@@ -95,9 +117,9 @@ export default function AgentsPage() {
         {/* Left Sidebar */}
         <Box
           sx={{
-            width: 300,
-            borderRight: '1px solid #E5E7EB',
-            bgcolor: '#FFFFFF',
+            width: 320,
+            borderRight: '1px solid #EDEDED',
+            bgcolor: 'white',
             display: 'flex',
             flexDirection: 'column',
             overflowY: 'auto',
@@ -105,17 +127,16 @@ export default function AgentsPage() {
             p: 3,
           }}
         >
-          {/* Header */}
-          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-            <Box sx={{ width: 44, height: 44, borderRadius: 2, bgcolor: '#D46F35', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+            <Box sx={{ width: 44, height: 44, borderRadius: 1.5, bgcolor: '#D46F35', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <SmartToyIcon />
             </Box>
             <Box>
               <Typography variant="subtitle1" fontWeight={800} color="#111827" lineHeight={1.2}>
-                Agent Builder
+                Agent Hub
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, lineHeight: 1.4 }}>
-                Create powerful AI agents using any model. Pick a template or start from scratch.
+                Configure and deploy autonomous AI entities.
               </Typography>
             </Box>
           </Box>
@@ -123,15 +144,16 @@ export default function AgentsPage() {
           <Button
             variant="contained"
             disableElevation
+            fullWidth
             sx={{
-              bgcolor: '#D46F35',
+              bgcolor: '#111827',
               color: 'white',
-              borderRadius: 6,
-              py: 1,
+              borderRadius: 1.5,
+              py: 1.2,
               fontWeight: 700,
               textTransform: 'none',
               mb: 4,
-              '&:hover': { bgcolor: '#B3511D' }
+              '&:hover': { bgcolor: '#1F2937' }
             }}
           >
             + New Agent
@@ -143,61 +165,43 @@ export default function AgentsPage() {
             sx={{
               bgcolor: '#FFF4ED',
               border: '1px solid #FFE8DC',
-              borderRadius: 4,
+              borderRadius: 2,
               p: 2.5,
               mb: 4,
             }}
           >
             <Typography variant="body2" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, color: '#111827' }}>
-              <AutoAwesomeIcon sx={{ fontSize: '1rem', color: '#D46F35' }}/> Not sure where to start?
+              <AutoAwesomeIcon sx={{ fontSize: '1rem', color: '#D46F35' }}/> AI Consultant
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2.5, lineHeight: 1.5 }}>
-              Chat with our AI guide — describe what you want your agent to do and get a personalized setup plan.
+              Describe your workflow and we&apos;ll suggest the perfect agent blueprint.
             </Typography>
             <Button
               variant="contained"
               disableElevation
               size="small"
               sx={{
-                bgcolor: '#FFFFFF',
+                bgcolor: 'white',
                 color: '#111827',
                 border: '1px solid #E5E7EB',
-                borderRadius: 6,
+                borderRadius: 1,
                 fontWeight: 600,
                 textTransform: 'none',
                 '&:hover': { bgcolor: '#F9FAFB' }
               }}
             >
-              Ask the Hub →
+              Start Consultation →
             </Button>
           </Paper>
 
-          {/* Task Queue */}
-          <Button
-            variant="contained"
-            disableElevation
-            fullWidth
-            sx={{
-              bgcolor: '#F3F4F6',
-              color: '#111827',
-              borderRadius: 6,
-              py: 0.75,
-              fontWeight: 600,
-              textTransform: 'none',
-              mb: 2,
-              justifyContent: 'flex-start',
-              '&:hover': { bgcolor: '#E5E7EB' }
-            }}
-          >
-            <Box sx={{ width: 20, height: 20, mr: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</Box>
-            New Task
-          </Button>
-
-          <Stack spacing={0.5}>
+          <Typography variant="overline" color="text.disabled" sx={{ fontWeight: 800, letterSpacing: 1.5, mb: 2, display: 'block' }}>
+            ACTIVE TASKS
+          </Typography>
+          <Stack spacing={1}>
             {checklistItems.map((item, idx) => (
-              <Box key={idx} sx={{ display: 'flex', alignItems: 'center', px: 1, opacity: 0.7 }}>
+              <Box key={idx} sx={{ display: 'flex', alignItems: 'center', px: 1, py: 0.5, borderRadius: 1.5, '&:hover': { bgcolor: '#F9FAFB' } }}>
                 <Checkbox size="small" disableRipple sx={{ p: 0.5, color: '#D1D5DB' }} />
-                <Typography variant="caption" noWrap sx={{ color: '#4B5563', fontWeight: 500, ml: 1 }}>
+                <Typography variant="caption" noWrap sx={{ color: '#4B5563', fontWeight: 600, ml: 1 }}>
                   {item}
                 </Typography>
               </Box>
@@ -206,152 +210,258 @@ export default function AgentsPage() {
         </Box>
 
         {/* Main Content Area */}
-        <Box sx={{ flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', width: '100%' }}>
           
-          <Box sx={{ width: '100%', maxWidth: 1000, mx: 'auto', px: { xs: 4, lg: 6 }, pt: { xs: 6, md: 10 }, pb: 8 }}>
+          <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 2, sm: 4, lg: 6 }, pt: { xs: 6, md: 8 }, pb: 8, boxSizing: 'border-box' }}>
             
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
-              <Typography variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ color: '#111827', mb: 1.5 }}>
-                Agent works <Box component="span" sx={{ color: '#D46F35' }}>for you.</Box>
+            <Box sx={{ mb: 6 }}>
+              <Typography variant="h3" fontWeight={900} letterSpacing="-1.5px" sx={{ color: '#111827', mb: 1.5 }}>
+                Autonomous <Box component="span" sx={{ color: '#D46F35' }}>Workflows</Box>
               </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Your AI agent takes care of everything, end to end.
+              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500, lineHeight: 1.5 }}>
+                Your AI agents operate independently, managing complex tasks from end to end.
               </Typography>
             </Box>
 
             {/* Massive Input Block */}
-            <Paper elevation={0} sx={{ borderRadius: '40px', border: '1px solid #E5E7EB', px: 4, py: 2, mb: 3, bgcolor: '#F9FAFB' }}>
+            <Paper 
+              elevation={0} 
+              sx={{ 
+                borderRadius: 2.5, 
+                border: '1px solid #E5E7EB', 
+                p: 3, 
+                mb: 4, 
+                bgcolor: 'white',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                transition: 'border-color 0.2s',
+                '&:focus-within': { borderColor: '#D46F35' }
+              }}
+            >
               <TextField 
                 fullWidth 
                 multiline 
                 minRows={2} 
                 maxRows={6} 
                 variant="standard" 
-                placeholder="What should we work on next?" 
+                placeholder={activeTab === 'Build a business' ? "What business plan should we draft today?" : `How can we help with ${activeTab.toLowerCase()}?`}
                 value={input} 
                 onChange={(e) => setInput(e.target.value)} 
                 sx={{ mb: 2 }}
                 InputProps={{ 
                   disableUnderline: true, 
-                  sx: { fontSize: '1.05rem', px: 1, py: 1, color: '#111827', fontWeight: 500, '& textarea::placeholder': { color: '#9CA3AF', opacity: 1 } } 
+                  sx: { fontSize: '1.2rem', color: '#111827', fontWeight: 600, '& textarea::placeholder': { color: '#9CA3AF', opacity: 1 } } 
                 }} 
               />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1, pt: 1, borderTop: '1px solid #E5E7EB', px: 1 }}>
-                <Stack direction="row" spacing={0.5} alignItems="center" sx={{ pt: 1 }}>
-                  <IconButton size="small" sx={{ color: '#A78BFA', '&:hover': { bgcolor: '#EDE9FE' } }}><MicNoneIcon fontSize="small" /></IconButton>
-                  <IconButton size="small" sx={{ color: '#FCD34D', '&:hover': { bgcolor: '#FEF3C7' } }}><FileUploadOutlinedIcon fontSize="small" /></IconButton>
-                  <IconButton size="small" sx={{ color: '#60A5FA', '&:hover': { bgcolor: '#DBEAFE' } }}><VideoCallOutlinedIcon fontSize="small" /></IconButton>
-                  <IconButton size="small" sx={{ color: '#34D399', '&:hover': { bgcolor: '#D1FAE5' } }}><ImageOutlinedIcon fontSize="small" /></IconButton>
-                  <IconButton size="small" sx={{ color: '#F472B6', '&:hover': { bgcolor: '#FCE7F3' } }}><AttachFileIcon fontSize="small" /></IconButton>
-                  <IconButton size="small" sx={{ color: '#9CA3AF', '&:hover': { bgcolor: '#F3F4F6' } }}><AddIcon fontSize="small" /></IconButton>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2, borderTop: '1px solid #F3F4F6' }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <IconButton size="small" sx={{ color: '#9333EA', bgcolor: '#F3E8FF', '&:hover': { bgcolor: '#E9D5FF' } }}><MicNoneIcon fontSize="small" /></IconButton>
+                  <IconButton size="small" sx={{ color: '#D97706', bgcolor: '#FEF3C7', '&:hover': { bgcolor: '#FDE68A' } }}><FileUploadOutlinedIcon fontSize="small" /></IconButton>
+                  <IconButton size="small" sx={{ color: '#2563EB', bgcolor: '#EFF6FF', '&:hover': { bgcolor: '#DBEAFE' } }}><VideoCallOutlinedIcon fontSize="small" /></IconButton>
+                  <IconButton size="small" sx={{ color: '#059669', bgcolor: '#D1FAE5', '&:hover': { bgcolor: '#A7F3D0' } }}><ImageOutlinedIcon fontSize="small" /></IconButton>
+                  <IconButton size="small" sx={{ color: '#374151', bgcolor: '#F3F4F6', '&:hover': { bgcolor: '#E5E7EB' } }}><AttachFileIcon fontSize="small" /></IconButton>
                 </Stack>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pt: 1 }}>
-                  <Typography variant="caption" color="text.disabled" fontWeight={600}>Agent</Typography>
-                  <IconButton sx={{ bgcolor: '#D46F35', color: 'white', width: 44, height: 44, '&:hover': { bgcolor: '#B3511D' } }}>
-                    <SendIcon sx={{ fontSize: '1rem', ml: 0.5 }} />
-                  </IconButton>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 700 }}>GPT-5.4 Ready</Typography>
+                  <Button 
+                    variant="contained" 
+                    disableElevation 
+                    endIcon={<SendIcon sx={{ fontSize: '0.9rem' }} />}
+                    sx={{ 
+                      bgcolor: '#D46F35', 
+                      color: 'white', 
+                      fontWeight: 800, 
+                      px: 3, 
+                      py: 1, 
+                      borderRadius: 1.5,
+                      '&:hover': { bgcolor: '#B3511D' } 
+                    }}
+                  >
+                    Deploy
+                  </Button>
                 </Box>
               </Box>
             </Paper>
 
-            {/* Prompt Tabs Row */}
-            <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', mb: 4, '&::-webkit-scrollbar': { display: 'none' } }}>
+            {/* Prompt Tabs Row (Horizontal Scrollable) */}
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              overflowX: 'auto', 
+              mb: 5, 
+              pb: 1.5,
+              '&::-webkit-scrollbar': { height: 4 },
+              '&::-webkit-scrollbar-thumb': { bgcolor: '#E5E7EB', borderRadius: 4 },
+              '&::-webkit-scrollbar-track': { bgcolor: 'transparent' }
+            }}>
               <Button
                 variant="contained"
                 disableElevation
-                startIcon={<WindowIcon />}
+                startIcon={<WindowIcon sx={{ fontSize: '1.2rem' }} />}
                 sx={{
-                  borderRadius: 6,
+                  borderRadius: 1.5,
                   bgcolor: '#111827',
                   color: 'white',
                   whiteSpace: 'nowrap',
                   textTransform: 'none',
-                  fontWeight: 600,
-                  py: 0.5,
-                  px: 2,
+                  fontWeight: 800,
+                  px: 3,
+                  mr: 1,
                   '&:hover': { bgcolor: '#374151' },
                 }}
               >
                 Use cases
               </Button>
-              {useCaseTabs.map((tab) => (
-                <Button
-                  key={tab}
-                  variant="outlined"
-                  sx={{
-                    borderRadius: 6,
-                    whiteSpace: 'nowrap',
-                    color: 'text.secondary',
-                    borderColor: '#E5E7EB',
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    py: 0.5,
-                    px: 2,
-                    '&:hover': { bgcolor: '#F9FAFB', borderColor: '#D1D5DB' }
-                  }}
-                >
-                  {tab}
-                </Button>
-              ))}
+              {useCaseTabs.map((tab) => {
+                const isActive = activeTab === tab.label;
+                return (
+                  <Button
+                    key={tab.label}
+                    variant={isActive ? 'contained' : 'outlined'}
+                    disableElevation
+                    onClick={() => setActiveTab(tab.label)}
+                    sx={{
+                      borderRadius: 1.5,
+                      minWidth: 'max-content',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap',
+                      color: isActive ? 'white' : '#4B5563',
+                      borderColor: isActive ? '#D46F35' : '#EDEDED',
+                      bgcolor: isActive ? '#D46F35' : 'white',
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      px: 3.5,
+                      py: 1.2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.2,
+                      '&:hover': { bgcolor: isActive ? '#B3511D' : '#F9FAFB', borderColor: '#D46F35' }
+                    }}
+                  >
+                    <Box component="span" sx={{ fontSize: '1rem' }}>{tab.icon}</Box>
+                    {tab.label}
+                  </Button>
+                );
+              })}
             </Box>
 
-            {/* Suggestions Divider List */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', mb: 3 }}>
-              {suggestions.map((s, idx) => (
-                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2, borderTop: '1px solid #F3F4F6' }}>
-                  <Box sx={{ width: 28, height: 28, borderRadius: 1.5, bgcolor: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem' }}>
-                    {s.icon}
+            {/* Templates Section */}
+            <Box sx={{ mb: 6 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+                <Typography variant="overline" fontWeight={900} color="text.disabled" sx={{ letterSpacing: 2 }}>
+                  {activeTab.toUpperCase()} BLUEPRINTS
+                </Typography>
+                <Chip label={filteredTemplates.length} size="small" sx={{ height: 20, bgcolor: '#F3F4F6', color: '#6B7280', fontWeight: 800, fontSize: '0.7rem' }} />
+              </Box>
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+                {filteredTemplates.map((tpl, i) => (
+                  <Paper 
+                    key={i} 
+                    elevation={0} 
+                    sx={{ 
+                      p: 3, 
+                      border: '1px solid #E5E7EB', 
+                      borderRadius: 2, 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: 2,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      '&:hover': { borderColor: '#D46F35', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', transform: 'translateY(-4px)' }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="h6" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: '#111827' }}>
+                        <Box sx={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#F9FAFB', borderRadius: 1 }}>{tpl.emoji}</Box>
+                        {tpl.title}
+                      </Typography>
+                      <AutoAwesomeIcon sx={{ fontSize: '1rem', color: '#D46F35', opacity: 0.5 }} />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1, lineHeight: 1.6, fontWeight: 500 }}>
+                      {tpl.desc}
+                    </Typography>
+                    <Stack direction="row" spacing={1} flexWrap="wrap">
+                      {tpl.tags.map(tag => (
+                        <Chip 
+                          key={tag} 
+                          label={tag} 
+                          size="small" 
+                          sx={{ 
+                            bgcolor: '#F9FAFB', 
+                            color: tag.includes('GPT') ? '#3B82F6' : tag.includes('Claude') ? '#10B981' : '#D46F35', 
+                            fontWeight: 800, 
+                            fontSize: '0.65rem',
+                            border: '1px solid rgba(0,0,0,0.05)',
+                            borderRadius: 1
+                          }} 
+                        />
+                      ))}
+                    </Stack>
+                  </Paper>
+                ))}
+                
+                {/* Build from Scratch Card */}
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 3, 
+                    border: '2px dashed #FFE8DC', 
+                    bgcolor: '#FFF4ED', 
+                    borderRadius: 2, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: 1.5, 
+                    cursor: 'pointer', 
+                    minHeight: 180,
+                    transition: 'all 0.2s',
+                    '&:hover': { bgcolor: '#FFE8DC', borderColor: '#D46F35' } 
+                  }}
+                >
+                  <Box sx={{ width: 44, height: 44, borderRadius: '50%', bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(212,111,53,0.1)' }}>
+                    <AddIcon sx={{ color: '#D46F35' }} />
                   </Box>
-                  <Typography variant="body2" color="text.secondary" fontWeight={500}>{s.text}</Typography>
-                </Box>
-              ))}
-              <Box sx={{ pt: 2, borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, cursor: 'pointer', '&:hover': { color: '#111827' } }}>
-                  View all suggestions {'>'}
-                </Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:hover': { color: '#111827' } }}>
-                  <AutoAwesomeIcon sx={{ fontSize: '0.8rem' }} /> Shuffle
-                </Typography>
+                  <Typography variant="subtitle2" fontWeight={800} sx={{ color: '#D46F35' }}>
+                    Custom {activeTab} Agent
+                  </Typography>
+                </Paper>
               </Box>
             </Box>
 
-            <Divider sx={{ my: 4, borderColor: '#F3F4F6' }} />
+            <Divider sx={{ my: 6, borderColor: '#F3F4F6' }} />
 
-            {/* Templates Horizontal Row */}
-            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 3 }}>
-              <Typography variant="overline" fontWeight={800} color="#9CA3AF" sx={{ letterSpacing: 1 }}>
-                AGENT TEMPLATES
-              </Typography>
-              <Box sx={{ bgcolor: '#F3F4F6', color: '#9CA3AF', borderRadius: 1, px: 0.75, py: 0.25, fontSize: '0.7rem', fontWeight: 800 }}>6</Box>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2, '&::-webkit-scrollbar': { display: 'none' } }}>
-              {templates.map((tpl, i) => (
-                <Paper key={i} elevation={0} sx={{ minWidth: 260, flexShrink: 0, p: 2.5, border: '1px solid #E5E7EB', borderRadius: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                  <Typography variant="body1" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {tpl.emoji} {tpl.title}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1, lineHeight: 1.5 }}>
-                    {tpl.desc}
-                  </Typography>
-                  <Stack direction="row" spacing={1} flexWrap="wrap">
-                    {tpl.tags.map(tag => (
-                      <Box key={tag} sx={{ bgcolor: '#F9FAFB', color: tag.includes('GPT') ? '#3B82F6' : tag.includes('Claude') ? '#10B981' : '#D46F35', fontWeight: 800, fontSize: '0.65rem', px: 1, py: 0.25, borderRadius: 1 }}>
-                        {tag}
-                      </Box>
-                    ))}
-                  </Stack>
-                </Paper>
-              ))}
-              
-              {/* Build from Scratch Card */}
-              <Paper elevation={0} sx={{ minWidth: 260, flexShrink: 0, p: 2.5, border: '2px dashed #FFE8DC', bgcolor: '#FFF4ED', borderRadius: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'pointer', '&:hover': { bgcolor: '#FFE8DC' } }}>
-                <Typography sx={{ color: '#D46F35', fontWeight: 800 }}>+</Typography>
-                <Typography variant="caption" fontWeight={800} sx={{ color: '#D46F35' }}>
-                  Build from Scratch
+            {/* Suggestions Divider List */}
+            {filteredSuggestions.length > 0 && (
+              <>
+                <Typography variant="overline" fontWeight={900} color="text.disabled" sx={{ letterSpacing: 2, mb: 2, display: 'block' }}>
+                  QUICK STARTS FOR {activeTab.toUpperCase()}
                 </Typography>
-              </Paper>
-            </Box>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2 }}>
+                  {filteredSuggestions.map((s, idx) => (
+                    <Paper 
+                      key={idx} 
+                      elevation={0}
+                      sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 2, 
+                        p: 2, 
+                        borderRadius: 1.5, 
+                        border: '1px solid #F3F4F6',
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: 'white', borderColor: '#D46F35', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }
+                      }}
+                    >
+                      <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>
+                        {s.icon}
+                      </Box>
+                      <Typography variant="body2" color="#4B5563" fontWeight={600} noWrap>{s.text}</Typography>
+                    </Paper>
+                  ))}
+                </Box>
+              </>
+            )}
 
           </Box>
         </Box>

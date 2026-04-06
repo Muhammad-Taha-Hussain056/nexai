@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Stack, IconButton, Menu, MenuItem, Divider } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Stack, Menu, MenuItem, Divider } from '@mui/material';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -13,6 +13,9 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
 import { useLanguage } from '@/i18n/LanguageProvider';
 import { LanguageCode } from '@/i18n/translations';
+import { useStore } from '@/store/useStore';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const navItems = [
   { key: 'nav.chatHub', path: '/chat', icon: <ChatBubbleOutlineIcon fontSize="small" sx={{ mr: 0.75, opacity: 0.8, fontSize: '1.1rem' }} /> },
@@ -24,10 +27,18 @@ const navItems = [
 export default function Navbar() {
   const pathname = usePathname();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userAnchorEl, setUserAnchorEl] = useState<null | HTMLElement>(null);
   const { language, setLanguage, t } = useLanguage();
+  const { user, logout } = useStore();
+  
   const openLang = Boolean(anchorEl);
+  const openUser = Boolean(userAnchorEl);
+
   const handleLangClick = (event: React.MouseEvent<HTMLElement>) => { setAnchorEl(event.currentTarget); };
   const handleLangClose = () => { setAnchorEl(null); };
+
+  const handleUserClick = (event: React.MouseEvent<HTMLElement>) => { setUserAnchorEl(event.currentTarget); };
+  const handleUserClose = () => { setUserAnchorEl(null); };
 
   const languages = [
     { code: 'SA', name: 'العربية' },
@@ -53,14 +64,19 @@ export default function Navbar() {
 
   return (
     <AppBar 
-      position="sticky" 
+      position="fixed" 
       elevation={0}
       sx={{ 
-        bgcolor: 'transparent',
+        bgcolor: 'rgba(255, 255, 255, 0.8)',
         borderBottom: '1px solid rgba(0,0,0,0.05)',
-        backdropFilter: 'blur(8px)',
-        pt: 1,
-        pb: 1
+        backdropFilter: 'blur(12px)',
+        pt: 0.5,
+        pb: 0.5,
+        top: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        zIndex: 1300,
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -102,7 +118,7 @@ export default function Navbar() {
                   borderRadius: 6,
                   textTransform: 'none',
                   '&:hover': {
-                    bgcolor: isActive ? '#FFE8DC' : '#F3F4F6',
+                    bgcolor: isActive ? '#ffdbc9ff' : '#ffffffff',
                   }
                 }}
               >
@@ -146,7 +162,7 @@ export default function Navbar() {
                   overflowY: 'auto',
                   filter: 'drop-shadow(0px 4px 20px rgba(0,0,0,0.1))',
                   mt: 1.5,
-                  borderRadius: 3,
+                  borderRadius: 1,
                   minWidth: 200,
                   maxHeight: 400,
                   border: '1px solid #E5E7EB'
@@ -188,41 +204,94 @@ export default function Navbar() {
               ))}
             </Menu>
           </>
-          <Button 
-            component={Link}
-            href="/login"
-            variant="outlined" 
-            sx={{ 
-              borderColor: '#E5E7EB', 
-              color: 'text.primary',
-              borderRadius: 6,
-              px: 3,
-              display: { xs: 'none', sm: 'flex'},
-              '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' }
-            }}
-          >
-            {t('nav.signIn')}
-          </Button>
-          <Button 
-            component={Link}
-            href="/signup"
-            variant="contained" 
-            disableElevation
-            sx={{ 
-              borderRadius: 6,
-              px: { xs: 2, sm: 3 },
-              py: 0.75,
-              fontWeight: 700,
-              textTransform: 'none',
-              background: 'linear-gradient(180deg, #D46F35 0%, #B3511D 100%)',
-              color: 'white',
-              '&:hover': {
-                background: 'linear-gradient(180deg, #CA6228 0%, #A34818 100%)',
-              }
-            }}
-          >
-            {t('nav.tryFree')} →
-          </Button>
+
+          {user ? (
+            <>
+              <Button
+                onClick={handleUserClick}
+                sx={{ 
+                  borderRadius: 6,
+                  color: 'text.primary',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  px: 2,
+                  bgcolor: openUser ? '#FFF4ED' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}
+              >
+                <AccountCircleOutlinedIcon fontSize="small" sx={{ color: '#D46F35' }} />
+                <Typography variant="body2" fontWeight={800}>{user.fullName || user.full_name}</Typography>
+                <KeyboardArrowDownIcon fontSize="small" sx={{ color: 'text.disabled' }} />
+              </Button>
+              <Menu
+                anchorEl={userAnchorEl}
+                open={openUser}
+                onClose={handleUserClose}
+                onClick={handleUserClose}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    filter: 'drop-shadow(0px 4px 20px rgba(0,0,0,0.1))',
+                    mt: 1.5,
+                    borderRadius: 2,
+                    minWidth: 180,
+                    border: '1px solid #E5E7EB'
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem sx={{ py: 1.5 }}>
+                  <Typography variant="body2" fontWeight={600}>Profile Settings</Typography>
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={logout} sx={{ py: 1.5, color: '#DC2626' }}>
+                  <LogoutIcon fontSize="small" sx={{ mr: 1.5 }} />
+                  <Typography variant="body2" fontWeight={700}>Sign Out</Typography>
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <Button 
+                component={Link}
+                href="/login"
+                variant="outlined" 
+                sx={{ 
+                  borderColor: '#E5E7EB', 
+                  color: 'text.primary',
+                  borderRadius: 6,
+                  px: 3,
+                  display: { xs: 'none', sm: 'flex'},
+                  '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' }
+                }}
+              >
+                {t('nav.signIn')}
+              </Button>
+              <Button 
+                component={Link}
+                href="/signup"
+                variant="contained" 
+                disableElevation
+                sx={{ 
+                  borderRadius: 6,
+                  px: { xs: 2, sm: 3 },
+                  py: 0.75,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  background: 'linear-gradient(180deg, #D46F35 0%, #B3511D 100%)',
+                  color: 'white',
+                  '&:hover': {
+                    background: 'linear-gradient(180deg, #CA6228 0%, #A34818 100%)',
+                  }
+                }}
+              >
+                {t('nav.tryFree')} 
+              </Button>
+            </>
+          )}
         </Stack>
       </Toolbar>
     </AppBar>

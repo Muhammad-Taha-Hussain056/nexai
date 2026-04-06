@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Container, Typography, TextField, InputAdornment, Button,
   Checkbox, FormControlLabel, Slider, Divider, Paper, Chip,
@@ -9,11 +9,12 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import Navbar from '../../components/layout/Navbar';
-import ModelCard from '../../components/marketplace/ModelCard';
-import ModelDetailModal from '../../components/marketplace/ModelDetailModal';
-import modelsData from '../../data/models_catalog.json';
-import { useStore } from '../../store/useStore';
-import Link from 'next/link';
+import ModelCard from "../../components/marketplace/ModelCard";
+import ModelDetailModal from "../../components/marketplace/ModelDetailModal";
+import modelsData from "../../data/models_catalog.json";
+import { useStore } from "../../store/useStore";
+import Link from "next/link";
+import { fetchAllModels } from "@/services/modelService";
 
 export interface FoundationModel {
   id: string;
@@ -56,17 +57,16 @@ export interface FoundationModel {
   tags: string[];
 }
 
-const labs = [
-  { emoji: '🧠', name: 'OpenAI', count: 9 },
-  { emoji: '👑', name: 'Anthropic', count: 3 },
-  { emoji: '💎', name: 'Google', count: 4 },
-  { emoji: '🦙', name: 'Meta', count: 4 },
-  { emoji: '🌬️', name: 'Mistral', count: 4 },
-  { emoji: '📡', name: 'Cohere', count: 2 },
+const labsConfig = [
+  { emoji: '🧠', name: 'OpenAI' },
+  { emoji: '👑', name: 'Anthropic' },
+  { emoji: '💎', name: 'Google' },
+  { emoji: '🦙', name: 'Meta' },
+  { emoji: '🌬️', name: 'Mistral' },
+  { emoji: '📡', name: 'Cohere' },
 ];
 
 const categories = ['All', 'Language', 'Vision', 'Code', 'Image Gen', 'Audio', 'Open Source'];
-
 const licenseTypes = ['Commercial', 'Open Source', 'Research Only', 'Enterprise'];
 
 export default function Marketplace() {
@@ -74,114 +74,137 @@ export default function Marketplace() {
   const [activeLab, setActiveLab] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<FoundationModel | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [sortBy, setSortBy] = useState('popular');
+  const [sortBy, setSortBy] = useState("popular");
   const [minRating, setMinRating] = useState(0);
   const [maxPrice, setMaxPrice] = useState(200);
-  
-  const providers = ['OpenAI', 'Anthropic', 'Google', 'Meta', 'Mistral', 'Cohere'];
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(['OpenAI', 'Anthropic', 'Google', 'Meta']);
-  const [selectedPricing, setSelectedPricing] = useState<string[]>(['Pay-per-use', 'Subscription', 'Free tier', 'Enterprise']);
+
+  const [allModels, setAllModels] = useState<FoundationModel[]>(
+    modelsData.models as FoundationModel[],
+  );
+
+  const providers = ["OpenAI", "Anthropic", "Google", "Meta", "Mistral", "Cohere"];
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(providers);
+  const [selectedPricing, setSelectedPricing] = useState<string[]>([
+    "Pay-per-use", "Subscription", "Free tier", "Enterprise",
+  ]);
+
+  useEffect(() => {
+    async function loadModels() {
+      try {
+        const data = await fetchAllModels();
+        if (data && data.models) {
+          setAllModels(data.models as FoundationModel[]);
+        }
+      } catch (err) {
+        console.error("Backend fetch failed, using fallback models catalog.", err);
+      }
+    }
+    void loadModels();
+  }, []);
 
   const toggleProvider = (p: string) =>
-    setSelectedProviders((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
+    setSelectedProviders((prev) =>
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p],
+    );
   const togglePricing = (p: string) =>
-    setSelectedPricing((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
+    setSelectedPricing((prev) =>
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p],
+    );
 
-  const sourceModels = modelsData.models as FoundationModel[];
+  const filteredModels = allModels.filter((m) => {
+    const searchLower = searchQuery.toLowerCase();
+    const modelNameLower = m.model.toLowerCase();
+    const modelDescLower = m.description.toLowerCase();
+    const modelProviderLower = m.provider.toLowerCase();
 
-  const filteredModels = sourceModels.filter((m) => {
-    const matchesSearch = m.model.toLowerCase().includes(searchQuery.toLowerCase()) || m.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Simplistic provider/lab match ignoring case routing
-    const friendlyProvider = m.provider.charAt(0).toUpperCase() + m.provider.slice(1);
-    const matchesLab = activeLab === null || friendlyProvider === activeLab;
+    const matchesSearch = modelNameLower.includes(searchLower) || modelDescLower.includes(searchLower);
+    const matchesProviderFilter = selectedProviders.some(p => p.toLowerCase() === modelProviderLower);
+    const matchesLab = activeLab === null || activeLab.toLowerCase() === modelProviderLower;
     const matchesRating = m.rating >= minRating;
-    const matchesProvider = selectedProviders.includes(friendlyProvider);
-    
-    return matchesSearch && matchesLab && matchesRating && matchesProvider;
+    const matchesCategory = activeCategory === "All" || (m.tags && m.tags.some((tag) => tag.toLowerCase() === activeCategory.toLowerCase()));
+
+    return matchesSearch && matchesLab && matchesRating && matchesProviderFilter && matchesCategory;
   });
 
   const sortedModels = [...filteredModels].sort((a, b) => {
     if (sortBy === 'rating') return b.rating - a.rating;
     if (sortBy === 'reviews') return b.reviewCount - a.reviewCount;
     if (sortBy === 'name') return a.model.localeCompare(b.model);
-    return b.reviewCount - a.reviewCount; // popular default
+    return b.reviewCount - a.reviewCount;
   });
 
+  // Dynamic counts for labs
+  const labCounts = allModels.reduce((acc, m) => {
+    const p = m.provider.toLowerCase();
+    acc[p] = (acc[p] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const dynamicLabs = labsConfig.map(lab => ({
+    ...lab,
+    count: labCounts[lab.name.toLowerCase()] || 0
+  }));
+
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#F4F2EE' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#F9FAFB' }}>
       <Navbar />
 
-      {/* ── STICKY SUBHEADER ── */}
-      <Box sx={{ borderBottom: '1px solid #E5E7EB', bgcolor: 'rgba(255,255,255,0.92)', position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(10px)' }}>
-
-        <Container maxWidth="xl" sx={{ py: 2, display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
-          <Typography variant="h5" fontWeight={800} letterSpacing="-0.5px" sx={{ flexShrink: 0 }}>
-            Model Marketplace
-          </Typography>
-
-          <TextField
-            size="small"
-            placeholder="Search 525 models, capabilities..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" sx={{ color: 'text.disabled' }} /></InputAdornment>,
-              sx: { borderRadius: 6, bgcolor: 'white', width: 300 },
-            }}
-          />
-
-          <Box sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', flexGrow: 1, '&::-webkit-scrollbar': { display: 'none' } }}>
+      <Box sx={{ bgcolor: 'white', borderBottom: '1px solid #E5E7EB', pt: 10, pb: 0 }}>
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 1.5, alignItems: 'center' }}>
+            <Typography variant="h5" fontWeight={900} sx={{ flexShrink: 0, letterSpacing: '-0.5px' }}>
+              Marketplace
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder={`Search ${allModels.length} models, capabilities or providers...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 3, bgcolor: '#F3F4F6', '& fieldset': { border: 'none' } }
+              }}
+              size="small"
+            />
+            <Button variant="contained" disableElevation startIcon={<AutoAwesomeIcon />}
+              sx={{ borderRadius: 3, px: 3, bgcolor: '#BF6132', textTransform: 'none', fontWeight: 700, flexShrink: 0, '&:hover': { bgcolor: '#A34818' } }}>
+              AI Assistant
+            </Button>
+          </Box>
+          
+          <Box sx={{ display: 'flex', gap: 4, mt: 1 }}>
             {categories.map((cat) => (
-              <Button
-                key={cat}
-                size="small"
-                onClick={() => setActiveCategory(cat)}
-                disableElevation
-                sx={{
-                  borderRadius: 5, px: 2, textTransform: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
-                  ...(activeCategory === cat
-                    ? { bgcolor: '#1A1A1A', color: 'white', '&:hover': { bgcolor: '#333' } }
-                    : { color: 'text.secondary', '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' } }),
-                }}
-              >
+              <Box key={cat} onClick={() => setActiveCategory(cat)}
+                sx={{ py: 1.5, px: 1, cursor: 'pointer', borderBottom: '2px solid', 
+                  borderColor: activeCategory === cat ? '#BF6132' : 'transparent',
+                  color: activeCategory === cat ? '#BF6132' : 'text.secondary',
+                  fontWeight: activeCategory === cat ? 700 : 500, fontSize: '0.875rem', transition: 'all 0.2s',
+                  '&:hover': { color: '#BF6132' } }}>
                 {cat}
-              </Button>
+              </Box>
             ))}
           </Box>
-
-          <Box display="flex" alignItems="center" gap={2} sx={{ flexShrink: 0 }}>
-            <Typography variant="body2" color="text.secondary">
-              <strong style={{ color: '#1F2937' }}>{sortedModels.length}</strong> models
-            </Typography>
-            <FormControl size="small">
-              <Select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                sx={{ borderRadius: 3, bgcolor: 'white', fontSize: '0.85rem', minWidth: 140 }}
-              >
-                <MenuItem value="popular">Most Popular</MenuItem>
-                <MenuItem value="rating">Highest Rated</MenuItem>
-                <MenuItem value="reviews">Most Reviewed</MenuItem>
-                <MenuItem value="name">Name A–Z</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
         </Container>
-
+        
         <Box sx={{ borderTop: '1px solid #F3F4F6', px: 3, py: 1.25 }}>
           <Box sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' }, alignItems: 'center' }}>
             <Button size="small" disableElevation onClick={() => setActiveLab(null)}
               sx={{ borderRadius: 5, px: 2, textTransform: 'none', fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap',
-                ...(activeLab === null ? { bgcolor: '#C2612E', color: 'white', '&:hover': { bgcolor: '#A34818' } } : { color: 'text.secondary', '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' } }) }}>
-              All Labs
+                ...(activeLab === null 
+                    ? { bgcolor: '#BF6132', color: 'white', border: '1px solid #BF6132', '&:hover': { bgcolor: '#A34818' } } 
+                    : { color: 'text.secondary', border: '1px solid transparent', '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' } }) }}>
+              All Models ({allModels.length})
             </Button>
-            {labs.map((lab) => (
+            {dynamicLabs.map((lab) => (
               <Button key={lab.name} size="small" onClick={() => setActiveLab((p) => p === lab.name ? null : lab.name)}
                 sx={{ borderRadius: 5, px: 2, textTransform: 'none', fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap',
                   ...(activeLab === lab.name
-                    ? { border: '1px solid #C2612E', color: '#C2612E', bgcolor: '#FFF4ED' }
-                    : { color: 'text.secondary', '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' } }) }}>
+                    ? { border: '1px solid #BF6132', color: '#BF6132', bgcolor: '#FFF4ED' }
+                    : { color: 'text.secondary', border: '1px solid transparent', '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' } }) }}>
                 {lab.emoji} {lab.name} ({lab.count})
               </Button>
             ))}
@@ -189,19 +212,15 @@ export default function Marketplace() {
         </Box>
       </Box>
 
-      {/* ── MAIN CONTENT ── */}
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 4, display: 'flex', gap: 4 }}>
-
-        {/* LEFT SIDEBAR */}
         <Box sx={{ width: 240, flexShrink: 0, display: { xs: 'none', md: 'block' } }}>
-
-          <Paper variant="outlined" component={Link} href="/chat" sx={{ p: 2.5, mb: 3, bgcolor: '#FFF4ED', borderColor: '#F9D8C8', borderRadius: 3, display: 'block', textDecoration: 'none', '&:hover': { boxShadow: '0 4px 12px rgba(194,97,46,0.1)' } }}>
+          <Paper variant="outlined" component={Link} href="/chat" sx={{ p: 2.5, mb: 3, bgcolor: '#FFF4ED', borderColor: '#F9D8C8', borderRadius: 1, display: 'block', textDecoration: 'none', '&:hover': { boxShadow: '0 4px 12px rgba(194,97,46,0.1)' } }}>
             <Box display="flex" alignItems="center" gap={1} mb={0.5}>
               <AutoAwesomeIcon sx={{ fontSize: '1rem', color: 'primary.main' }} />
               <Typography variant="body2" fontWeight={700} color="primary.main">Need help choosing?</Typography>
             </Box>
             <Typography variant="caption" color="text.secondary" display="block">
-              Chat with our AI guide for a personalised recommendation in 60 seconds.
+              Chat with our AI guide for a personalised recommendation.
             </Typography>
           </Paper>
 
@@ -229,7 +248,7 @@ export default function Marketplace() {
 
           <Typography variant="caption" fontWeight={800} color="text.disabled" sx={{ letterSpacing: '0.08em', display: 'block', mb: 2 }}>MAX PRICE/1M TOKENS</Typography>
           <Box sx={{ px: 0.5, mb: 1 }}>
-            <Slider value={maxPrice} onChange={(_, v) => setMaxPrice(v as number)} min={0} max={200} size="small" valueLabelDisplay="auto" valueLabelFormat={(v) => `$${v}`} sx={{ color: 'primary.main' }} />
+            <Slider value={maxPrice} onChange={(_, v) => setMaxPrice(v as number)} min={0} max={200} size="small" valueLabelDisplay="auto" sx={{ color: 'primary.main' }} />
           </Box>
           <Typography variant="body2" color="text.secondary" mb={3}>Up to ${maxPrice}</Typography>
           <Divider sx={{ mb: 3 }} />
@@ -239,29 +258,32 @@ export default function Marketplace() {
             <Rating value={minRating} onChange={(_, v) => setMinRating(v ?? 0)} size="small" sx={{ color: '#FBBF24' }} />
             <Typography variant="caption" color="text.secondary">{minRating > 0 ? `${minRating}+` : 'Any'}</Typography>
           </Box>
-          <Divider sx={{ mb: 3 }} />
-
-          <Typography variant="caption" fontWeight={800} color="text.disabled" sx={{ letterSpacing: '0.08em', display: 'block', mb: 1 }}>LICENSE TYPE</Typography>
-          <Box display="flex" flexWrap="wrap" gap={0.75} mb={3}>
-            {licenseTypes.map((l) => (
-              <Chip key={l} label={l} size="small" onClick={() => {}} sx={{ borderRadius: 2, bgcolor: 'white', border: '1px solid #E5E7EB', fontWeight: 500, fontSize: '0.72rem', cursor: 'pointer', '&:hover': { bgcolor: '#FFF4ED', borderColor: 'primary.main', color: 'primary.main' } }} />
-            ))}
-          </Box>
-
+          
           <Button fullWidth variant="outlined" size="small" onClick={() => { setActiveLab(null); setSearchQuery(''); setActiveCategory('All'); setMinRating(0); setMaxPrice(200); setSortBy('popular'); }}
             sx={{ borderRadius: 3, borderColor: '#E5E7EB', color: 'text.secondary', textTransform: 'none', '&:hover': { borderColor: 'primary.main', color: 'primary.main' } }}>
-            Reset all filters
+            Reset all
           </Button>
         </Box>
 
-        {/* MODEL GRID */}
         <Box sx={{ flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+             <Typography variant="body2" color="text.secondary">
+                Showing <strong style={{ color: '#111' }}>{sortedModels.length}</strong> of {allModels.length} models
+             </Typography>
+             <FormControl size="small">
+                <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} sx={{ borderRadius: 2, bgcolor: 'white', minWidth: 160, fontSize: '0.85rem' }}>
+                    <MenuItem value="popular">Most Popular</MenuItem>
+                    <MenuItem value="rating">Highest Rated</MenuItem>
+                    <MenuItem value="name">Name A-Z</MenuItem>
+                </Select>
+             </FormControl>
+          </Box>
+
           {sortedModels.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 16 }}>
-              <Typography variant="h5" fontWeight={700} gutterBottom>No models found</Typography>
-              <Typography variant="body2" color="text.secondary" mb={3}>Try adjusting your search or filters.</Typography>
-              <Button variant="contained" disableElevation onClick={() => { setActiveLab(null); setSearchQuery(''); setActiveCategory('All'); setMinRating(0); }} sx={{ borderRadius: 6, bgcolor: 'primary.main' }}>
-                Clear all filters
+              <Typography variant="h5" fontWeight={700} gutterBottom>No matches found</Typography>
+              <Button variant="contained" disableElevation onClick={() => { setActiveLab(null); setSearchQuery(''); setActiveCategory('All'); }} sx={{ borderRadius: 3, bgcolor: '#BF6132', mt: 2 }}>
+                Clear Filters
               </Button>
             </Box>
           ) : (

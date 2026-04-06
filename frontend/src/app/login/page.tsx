@@ -20,7 +20,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import GoogleIcon from '@mui/icons-material/Google';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
-import { login } from '@/lib/api';
+import { authService } from '@/services/authService';
+import { useStore } from '@/store/useStore';
+import { setCookie } from '@/lib/cookies';
 
 const MicrosoftIcon = () => (
   <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
@@ -35,6 +37,7 @@ function LoginForm() {
   const router = useRouter();
   const search = useSearchParams();
   const presetEmail = search.get('email') ?? '';
+  const setUser = useStore((state) => state.setUser);
 
   const [email, setEmail] = useState(presetEmail);
   const [password, setPassword] = useState('');
@@ -60,11 +63,18 @@ function LoginForm() {
     setSubmitting(true);
 
     try {
-      const result = await login(email.trim(), password);
-      window.localStorage.setItem('nexus_auth_token', result.token);
-      router.push('/chat');
+      const result = await authService.signin({ email: email.trim(), password });
+      
+      // Store tokens in cookies (default 1 day for access, 7 for refresh)
+      setCookie('accessToken', result.accessToken, 1);
+      setCookie('refreshToken', result.refreshToken, 7);
+      
+      // Update store
+      setUser(result.user);
+      
+      router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
       setSubmitting(false);
     }
